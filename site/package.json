@@ -1,0 +1,21 @@
+{
+  "name": "sigma-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "10.0.2",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "@chakra-ui/icons": "^1.0.0",
+    "@chakra-ui/react": "^1.0.0",
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0",
+    "emotion-theming": "^11.0.0",
+    "framer-motion": "^2.9.4"
+  }
+}

@@ -8,11 +8,11 @@ import NavLink from "./HeaderNavLink";
 
 function HeaderContent(props) {
   return (
-      <Flex w="100%" h="100%" px="10" align="center">
-        <Text fontSize="lg" fontWeight="200">
+      <Flex w="100%" h="100%" px="3" align="center">
+        <Text fontSize="lg" fontWeight="200" mt="0">
           Stack
         </Text>
-        <Text fontSize="lg" fontWeight="bold" color="brand.500">
+        <Text fontSize="lg" fontWeight="bold" color="brand.500" mt="0">
           UnderFlow
         </Text>
         <HStack

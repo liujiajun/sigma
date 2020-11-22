@@ -101,10 +101,9 @@ def update_votes(path):
     cur.close()
 
 if __name__ == '__main__':
-    cur = connect_to_database()
     insert_posts('resources/ebooks.meta.stackexchange.com/Posts.xml')
-    print('1')
+    print('Posts inserted')
     update_users('resources/ebooks.meta.stackexchange.com/Users.xml')
-    print('2')
+    print('Users updated')
     update_votes('resources/ebooks.meta.stackexchange.com/Votes.xml')
-    print('3')
+    print('Votes updated')

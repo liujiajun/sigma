@@ -8,14 +8,17 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "10.0.2",
-    "react": "17.0.1",
-    "react-dom": "17.0.1",
     "@chakra-ui/icons": "^1.0.0",
     "@chakra-ui/react": "^1.0.0",
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
     "emotion-theming": "^11.0.0",
-    "framer-motion": "^2.9.4"
+    "framer-motion": "^2.9.4",
+    "next": "10.0.2",
+    "react": "17.0.1",
+    "react-dom": "17.0.1"
+  },
+  "devDependencies": {
+    "pg-promise": "^10.8.0"
   }
 }

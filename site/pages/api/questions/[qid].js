@@ -1,13 +1,18 @@
+const config = require('../../../next.config');
+
 export default async function handler(req, res) {
-  const {
-    query: {qid},
+  let {
+    query: {qid, lang},
   } = req
 
   if (!parseInt(qid)) {
     res.status(404).json({msg: "Question not found."})
   }
 
+  lang = config.i18n.locales.includes(lang) ? lang : config.i18n.defaultLocale
+
   const db = require('../../../lib/db').instance
+
   let r = await db.tx(async t => {
     const question = await db.any('select title, body from Posts where PostTypeId = 1 and Id = $1', [qid])
     const answers =  await db.any('select body from Posts where PostTypeId = 2 and ParentId = $1', [qid])

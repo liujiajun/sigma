@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import {Divider, Box, Container, chakra,} from "@chakra-ui/react";
 import { useRouter } from 'next/router';
 import Header from "../../components/common/Header";
+import Error from "next/error";
 
 function AnswerBox(answer) {
   return (
@@ -19,9 +21,14 @@ function AnswerBox(answer) {
 export default function Question({question, answers}) {
   const { isFallback } = useRouter();
 
-  if (isFallback) {
-    return <p>Generating</p>
+  if (!isFallback && !question) {
+    return <Error statusCode={404} title="Question not found" />;
   }
+
+  if (isFallback) {
+    return <p>Generating content...</p>
+  }
+
 
   return (
       <>
@@ -54,29 +61,19 @@ export default function Question({question, answers}) {
   )
 }
 
-// export async function getServerSideProps(context) {
-//   const res = await fetch(`http://localhost:3000/api/questions/${context.params.qid}`)
-//   const data = await res.json()
-//   console.log(data)
-//   return {
-//     props: data
-//   }
-// }
-
 export async function getStaticPaths() {
   return {
     paths: [
       {params: {qid: '1'}},
-      {params: {qid: '2'}}
-        ],
+    ],
     fallback: true
   };
 }
 
-export async function getStaticProps({ params }) {
-  const { qid } = params;
+export async function getStaticProps({ params, locale }) {
+  const { qid, lang } = params;
 
-  const res = await fetch(`http://localhost:3000/api/questions/${params.qid}`)
+  const res = await fetch(`http://localhost:3000/api/questions/${params.qid}?lang=${locale}`)
   const data = await res.json()
 
   return {

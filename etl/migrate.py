@@ -5,17 +5,23 @@ import xml.etree.ElementTree as ET
 def connect_to_database():
     conn = psycopg2.connect(
         host='localhost',
-        database='postgres',
+        port=5430,
+        database='sigma',
         user='postgres',
-        password='postgres'
+        password='postgres',
     )
     cur = conn.cursor()
     return conn, cur
 
 
-def insert_posts(path):
+def insert_posts(path, domain):
     conn, cur = connect_to_database()
+    count = 0
     for event, elem in ET.iterparse(path):
+        count += 1
+        if count % 10000 == 0:
+            print(count)
+
         row = elem.attrib
 
         if 'Id' not in row:
@@ -33,6 +39,8 @@ def insert_posts(path):
         row.setdefault('Tags', None)
         row.setdefault('ViewCount', None)
 
+        row['Domain'] = domain
+
         cur.execute("""
         insert into Posts (
                     Id, 
@@ -45,11 +53,74 @@ def insert_posts(path):
                     OwnerDisplayName, 
                     Title, 
                     Tags,
-                    ViewCount
+                    ViewCount,
+                    Domain
                     ) values 
                     (%(Id)s, %(PostTypeId)s, %(AcceptedAnswerId)s, %(ParentId)s, 
                     %(CreationDate)s, %(Body)s, %(OwnerUserId)s, %(OwnerDisplayName)s, 
-                    %(Title)s, %(Tags)s, %(ViewCount)s)
+                    %(Title)s, %(Tags)s, %(ViewCount)s, %(Domain)s)
+                    """,
+                    row)
+    conn.commit()
+    cur.close()
+
+
+def insert_users(path, domain):
+    conn, cur = connect_to_database()
+    count = 0
+    for event, elem in ET.iterparse(path):
+        count += 1
+        if count % 10000 == 0:
+            print(count)
+
+        row = elem.attrib
+
+        if 'Id' not in row:
+            continue
+
+        row.setdefault('DisplayName', None)
+
+        row['Domain'] = domain
+
+        cur.execute("""
+        insert into Users (
+                    Id, 
+                    Domain,
+                    DisplayName
+                    ) values 
+                    (%(Id)s, %(Domain)s, %(DisplayName)s)
+                    """,
+                    row)
+    conn.commit()
+    cur.close()
+
+
+def insert_votes(path, domain):
+    conn, cur = connect_to_database()
+    count = 0
+    for event, elem in ET.iterparse(path):
+        count += 1
+        if count % 10000 == 0:
+            print(count)
+
+        row = elem.attrib
+
+        if 'Id' not in row:
+            continue
+
+        if row['VoteTypeId'] != '2' and row['VoteTypeId'] != '3':
+            continue
+
+        row['Domain'] = domain
+
+        cur.execute("""
+        insert into Votes (
+                    Id, 
+                    Domain,
+                    VoteTypeId,
+                    PostId
+                    ) values 
+                    (%(Id)s, %(Domain)s, %(VoteTypeId)s, %(PostId)s)
                     """,
                     row)
     conn.commit()
@@ -58,7 +129,12 @@ def insert_posts(path):
 
 def update_users(path):
     conn, cur = connect_to_database()
+    count = 0
     for event, elem in ET.iterparse(path):
+        count += 1
+        print(count)
+        if count % 1000 == 0:
+            print(count)
         row = elem.attrib
 
         if 'Id' not in row:
@@ -101,9 +177,15 @@ def update_votes(path):
     cur.close()
 
 if __name__ == '__main__':
-    insert_posts('resources/ebooks.meta.stackexchange.com/Posts.xml')
-    print('Posts inserted')
-    update_users('resources/ebooks.meta.stackexchange.com/Users.xml')
-    print('Users updated')
-    update_votes('resources/ebooks.meta.stackexchange.com/Votes.xml')
-    print('Votes updated')
+    # base_path = 'resources/ebooks.meta.stackexchange.com'
+    base_path = '/Users/wuchu/Downloads/math.stackexchange.com'
+    domain = 'math.stackexchange.com'
+
+    #insert_posts(base_path + '/Posts.xml', 'math.stackexchange.com')
+    #print('Posts inserted')
+
+    # insert_users(base_path + '/Users.xml', domain)
+    # print('Users inserted')
+
+    insert_votes(base_path + '/Votes.xml', domain)
+    print('Votes inserted')

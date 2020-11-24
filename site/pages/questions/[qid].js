@@ -1,24 +1,60 @@
-import { useEffect } from 'react';
-import {Divider, Box, Container, chakra,} from "@chakra-ui/react";
+import {
+  Divider, Box, Container, Text, chakra, VStack, HStack, Tag, TagLeftIcon, TagLabel,
+} from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import Header from "../../components/common/Header";
-import Error from "next/error";
+import Error from 'next/error';
+import { TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import Header from '../../components/common/Header';
+import LatexAndHtml from '../../components/common/LatexAndHtml';
 
 function AnswerBox(answer) {
   return (
-      <>
-        <Divider color="gray.500" mt="1rem" mb="1rem"/>
-        <Container
-            maxWidth="200"
+    <>
+      <Divider mt={0} mb={0} />
+      <Container
+        maxW="200"
+      >
+        <Box
+          w="100%"
+          textAlign="left"
         >
-          { <div dangerouslySetInnerHTML={{ __html: answer.body }} /> }
+          <HStack spacing={2}>
+            <Tag size="lg" key="lg" variant="subtle" colorScheme="green">
+              <TagLeftIcon boxSize="12px" as={TriangleUpIcon} />
+              <TagLabel>{ answer.upvotecount }</TagLabel>
+            </Tag>
+            <Tag size="lg" key="lg" variant="subtle" colorScheme="red">
+              <TagLeftIcon boxSize="12px" as={TriangleDownIcon} />
+              <TagLabel>
+                {answer.downvotecount}
+              </TagLabel>
+            </Tag>
+          </HStack>
+        </Box>
+        <Container
+          px={0}
+          maxW="200"
+          overflowX={{ base: 'auto', lg: 'visible' }}
+        >
+          <LatexAndHtml raw={answer.body} />
         </Container>
-      </>
 
-  )
+        <Box
+          color="gray.500"
+          fontSize="xs"
+          mt={4}
+        >
+          Answered by
+          {' '}
+          { answer.ownerdisplayname }
+        </Box>
+      </Container>
+    </>
+
+  );
 }
 
-export default function Question({question, answers}) {
+export default function QuestionAndAnswers({ question, answers }) {
   const { isFallback } = useRouter();
 
   if (!isFallback && !question) {
@@ -26,58 +62,57 @@ export default function Question({question, answers}) {
   }
 
   if (isFallback) {
-    return <p>Generating content...</p>
+    return <p>Generating content...</p>;
   }
 
-
   return (
-      <>
-        <Header/>
-        <Box mb={20}>
+    <>
+      <Header />
+      <Box
+        as="section"
+        w="full"
+        pb={12}
+        pt={14}
+        mx="auto"
+        maxWidth="5xl"
+        px={{ base: '2', md: '6' }}
+      >
+        <Box mx="8">
+          <chakra.h1>
+            <LatexAndHtml raw={question.title} />
+          </chakra.h1>
           <Box
-              as="section"
-              pt={{ base: "5rem", md: "5rem" }}
-              pb={{ base: "0", md: "5rem" }}
-              maxW="3xl"
-              mx="auto"
-              textAlign="left"
-              px="3"
+            pt={1}
+            pb={1}
           >
-            <Box>
-              <chakra.h1>
-                {question.title}
-              </chakra.h1>
-              <Box pt="0.8rem">
-                <div dangerouslySetInnerHTML={{ __html: question.body }} />
-              </Box>
-            </Box>
-            <Box>
-              { answers.map((answer) => AnswerBox(answer)) }
-            </Box>
+            <LatexAndHtml raw={question.body} />
           </Box>
         </Box>
+        <VStack spacing="2rem">
+          { answers.map((answer) => AnswerBox(answer)) }
+        </VStack>
+      </Box>
 
-      </>
-  )
+    </>
+  );
 }
 
 export async function getStaticPaths() {
   return {
     paths: [
-      {params: {qid: '1'}},
+      { params: { qid: '30732' } },
     ],
-    fallback: true
+    fallback: true,
   };
 }
 
 export async function getStaticProps({ params, locale }) {
   const { qid, lang } = params;
 
-  const res = await fetch(`http://localhost:3000/api/questions/${params.qid}?lang=${locale}`)
-  const data = await res.json()
+  const res = await fetch(`http://localhost:3000/api/questions/${params.qid}?lang=${locale}`);
+  const data = await res.json();
 
   return {
-    props: data
-  }
-
+    props: data,
+  };
 }
